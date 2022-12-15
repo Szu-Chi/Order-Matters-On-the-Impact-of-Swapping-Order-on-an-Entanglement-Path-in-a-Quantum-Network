@@ -1,10 +1,13 @@
 #%% [markdown]
+# Order Matters: On the Impact of Swapping Order on an Entanglement Path in a Quantum Network
+## Setup Library
 import numpy as np
 from math import comb
 import copy
 import itertools
 
-#%%
+#%% [markdown]
+## Define funciton and class for simulation
 class MetricVector:
     def __init__(self, w, W, p=0.5): 
         # w:available channels on link. 
@@ -208,7 +211,7 @@ class Graph:
         return linked[result_key]
 
 
-def simulate_swapping_effect(graph, order, testing_tiems=100000):
+def simulate_swapping_effect(graph, order, testing_tiems=1000000):
     mv = graph.calc_mv_with_order(order)
     print(f'metric vector: {np.round(mv.P, 3)}', f'EXT: {np.round(mv.ext(), 3)}', end='  ')
     en_attem = []
@@ -220,7 +223,8 @@ def simulate_swapping_effect(graph, order, testing_tiems=100000):
         f[u] = co[i]
     print(f'number of times: {f}',f'Throughput: {sum(en_attem)}')
 
-
+#%% [markdown]
+## Setup graph
 print('\n')
 print('   1     2     3     3   ')
 print('s-----x-----y-----z-----t')
@@ -237,7 +241,8 @@ graph.add_vertex(y)
 graph.add_vertex(z)
 graph.add_vertex(t)
 
-#%%
+#%% [markdown]
+## Simulate impact of swapping order 
 order = ['x', 'y', 'z']
 simulate_swapping_effect(graph, order)
 
@@ -254,7 +259,8 @@ order = ['z', 'y', 'x']
 simulate_swapping_effect(graph, order)
 
 
-#%%
+#%% [markdown]
+## Setup graph
 print('\n')
 print('   3     4     5     5     5     5     4     3')
 print('s-----a-----b-----c-----d-----e-----f-----g-----t')
@@ -279,22 +285,25 @@ graph.add_vertex(f)
 graph.add_vertex(g)
 graph.add_vertex(t)
 
+#%% [markdown]
+## Simulate impact of swapping order 
 order = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
-simulate_swapping_effect(graph, order, testing_tiems=100000)
+simulate_swapping_effect(graph, order, testing_tiems=1000000)
 
 
 order = ['a', 'c', 'e', 'g', 'b', 'f', 'd']
-simulate_swapping_effect(graph, order, testing_tiems=100000)
+simulate_swapping_effect(graph, order, testing_tiems=1000000)
 
 order = ['c', 'b', 'e', 'f', 'd', 'g', 'a']
-simulate_swapping_effect(graph, order, testing_tiems=100000)
+simulate_swapping_effect(graph, order, testing_tiems=1000000)
 
-#%%
-ext = [0]
+#%% [markdown]
+## Find order with maximum throughput  
+ext = []
 for order in list(itertools.permutations(['a', 'b', 'c', 'd', 'e', 'f', 'g'])):
     mv = graph.calc_mv_with_order(order)
-    if mv.ext() > max(ext):
-        opt_order = order 
     ext.append(mv.ext())
+    if mv.ext() >= max(ext):
+        opt_order = order 
 
 print(f'opimize_order: {opt_order}', f'EXT: {round(max(ext),3)}')
